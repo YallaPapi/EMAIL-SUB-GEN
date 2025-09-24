@@ -1,0 +1,15 @@
+# Python
+__pycache__/
+*.py[cod]
+*.egg-info/
+
+# Local env
+.env
+.env.local
+
+# Outputs
+output/
+
+# OS
+.DS_Store
+Thumbs.db
