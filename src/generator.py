@@ -1,6 +1,9 @@
 from typing import Dict, List
 from openai import OpenAI
 
+# Module-level OpenAI client reused across threads
+_OPENAI_CLIENT: OpenAI | None = None
+
 
 def generate_email(
     openai_api_key: str,
@@ -10,7 +13,9 @@ def generate_email(
     prompt_template: str,
     timeout: int = 60,
 ) -> Dict[str, str]:
-    client = OpenAI(api_key=openai_api_key, timeout=timeout)
+    global _OPENAI_CLIENT
+    if _OPENAI_CLIENT is None:
+        _OPENAI_CLIENT = OpenAI(api_key=openai_api_key, timeout=timeout)
 
     first_name = (prospect.get("firstName") or "").strip()
     short_name = (prospect.get("shortName") or "").strip()
@@ -34,7 +39,7 @@ def generate_email(
     )
 
     # GPT-5-mini via Responses API, normal text output
-    resp = client.responses.create(
+    resp = _OPENAI_CLIENT.responses.create(
         model=model,
         input=input_text,
         max_output_tokens=1000,
@@ -72,4 +77,3 @@ def generate_email(
         raise RuntimeError(f"Model output missing subject or body: '{preview}'")
 
     return {"subject": subject, "emailBody": email_body}
-

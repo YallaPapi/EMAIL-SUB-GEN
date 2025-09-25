@@ -1,6 +1,14 @@
 import json
 from typing import List, Dict
 import requests
+from requests.adapters import HTTPAdapter
+from urllib3.util.retry import Retry
+
+# Module-level pooled session for connection reuse
+_SESSION = requests.Session()
+_ADAPTER = HTTPAdapter(pool_connections=64, pool_maxsize=64)
+_SESSION.mount("https://", _ADAPTER)
+_SESSION.mount("http://", _ADAPTER)
 
 
 def fetch_hooks(perplexity_api_key: str, model: str, prospect: Dict[str, str], timeout: int = 60) -> List[str]:
@@ -32,7 +40,7 @@ def fetch_hooks(perplexity_api_key: str, model: str, prospect: Dict[str, str], t
         ],
     }
 
-    resp = requests.post(url, headers=headers, json=payload, timeout=timeout)
+    resp = _SESSION.post(url, headers=headers, json=payload, timeout=timeout)
     if resp.status_code != 200:
         raise RuntimeError(f"Perplexity API error {resp.status_code}: {resp.text[:200]}")
     data = resp.json()
@@ -56,4 +64,3 @@ def fetch_hooks(perplexity_api_key: str, model: str, prospect: Dict[str, str], t
     if not (3 <= len(hooks) <= 6):
         raise RuntimeError("Perplexity returned invalid hooks count")
     return hooks
-

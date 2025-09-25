@@ -59,26 +59,43 @@ def run_pipeline(
     with open(prompt_path, "r", encoding="utf-8") as f:
         prompt_text = f.read()
 
-    batches = chunk_list(rows, cfg.batch_size)
-
     start = time.time()
     all_results: List[Tuple[int, Dict[str, str]]] = []
 
-    with concurrent.futures.ProcessPoolExecutor(max_workers=cfg.concurrency) as pool:
-        for bidx, batch in enumerate(batches):
-            attempt = 0
-            while True:
-                attempt += 1
-                fut = pool.submit(_process_batch, cfg, batch, prompt_text)
-                try:
-                    res = fut.result()
-                    all_results.extend(res)
-                    break
-                except Exception as e:
-                    if attempt > cfg.batch_retries:
-                        raise RuntimeError(
-                            f"Batch {bidx+1}/{len(batches)} failed after {attempt-1} retries: {e}"
-                        )
+    # Threaded row-level parallelism
+    def run_row(item: Tuple[int, Dict[str, str]]) -> Tuple[int, Dict[str, str]]:
+        idx, prospect = item
+        hooks = fetch_hooks(
+            perplexity_api_key=cfg.perplexity_api_key,
+            model=cfg.perplexity_model,
+            prospect=prospect,
+            timeout=cfg.request_timeout,
+        )
+        gen = generate_email(
+            openai_api_key=cfg.openai_api_key,
+            model=cfg.openai_model,
+            prospect=prospect,
+            hooks=hooks,
+            prompt_template=prompt_text,
+            timeout=cfg.request_timeout,
+        )
+        gen["subject"] = sanitize_text(gen["subject"]) 
+        gen["emailBody"] = sanitize_text(gen["emailBody"]) 
+        if not gen["subject"] or not gen["emailBody"]:
+            raise RuntimeError("Empty subject or email body")
+        return idx, gen
+
+    with concurrent.futures.ThreadPoolExecutor(max_workers=cfg.concurrency) as pool:
+        futures = [pool.submit(run_row, item) for item in rows]
+        try:
+            for fut in concurrent.futures.as_completed(futures):
+                idx, gen = fut.result()
+                all_results.append((idx, gen))
+        except Exception as e:
+            # Cancel all outstanding work and fail fast
+            for f in futures:
+                f.cancel()
+            raise
 
     for idx, gen in all_results:
         df.loc[idx, "subject"] = gen["subject"]
@@ -87,4 +104,3 @@ def run_pipeline(
     write_csv(df, output_path)
     duration = time.time() - start
     print(f"Processed {len(rows)} rows in {duration:.1f}s. Output: {output_path}")
-
