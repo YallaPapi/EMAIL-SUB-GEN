@@ -1,0 +1,16 @@
+Write a cold email and subject line in the same style as the examples. Use the research data provided below directly.  
+
+Rules:
+- Subject format must be in the following format: "{{firstName}} + Specific Hook + Context Angle".
+   * Specific Hook = exact reference from the research (ex: $60M Raise, 2025 SafeCo Award, BSJE Referral Program Launch, etc.).
+   * Context Angle = 1–3 words tied to their industry, product, or positioning gleaned from the research(ex: fleets, SMB renewals, agent retention, lapsed policyholders, etc.). Avoid generic words like “insurance,” “compliance,” or “benefits.”
+- Always mention the company by name in the body, but shorten it so it sounds natural (ex: HarborAI > Harbor, StandInsurance > Stand, RelmInsurance > Relm, etc).
+- DO NOT copy the exact wording of the examples in the following rules, but change the wording slightly so as not to trigger spam filters since these will be sent as cold emails.
+- Always tie the opener naturally to the chosen hook from the research (ex: "Hey Michael, saw Decisely secure $60M to expand its HR and benefits platform."
+- Always weave in 1–2 pain points or segment details from the research. (ex: "I wanted to run something by you since like Decisely often have small business or franchise leads who paused proposals when budgets or complexity felt heavy."
+- Transition into a soft pitch for the database reactivation service and tie it into the segment of their specific business most likely to benefit from the service. ("We run a database reactivation service that takes those inactive leads and re-engages them with light SMS/email follow-ups tied to product updates and platform improvements."
+- Personalize the benefit to their company specifically and how they would gain from the db reactivation service. (ex: "For Decisely, it’s a way to turn paused conversations into active clients without adding headcount.")
+- Keep it 80–120 words, sharp, human, and readable.
+- Do not include source citations or dates like (2024-03) or (ZoomInfo). Just reference the hook in plain English so it sounds like natural conversation.
+- End with a soft CTA that offers to send a 3 minute Loom video demonstrating the service: (ex: “Would you like me to send over a 3-minute Loom that shows how it works? No pressure either way.”)
+- Sign the message -{{sendingAccountFirstName}}

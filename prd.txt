@@ -1,0 +1,91 @@
+PRD: CLI Bulk Email & Subject Line Generator (GPT-5-MINI)
+Overview
+
+A standalone command-line application that ingests a CSV of prospect data, generates personalized subject lines and cold emails in bulk using GPT-5-MINI, and outputs a new CSV with two additional columns: subject and emailBody.
+
+The tool must process large files fast, in batches with concurrency.
+If any row fails, the whole run is considered failed - no fallback, no skipped rows.
+
+Objectives
+
+Input
+
+Accept a CSV file with required columns:
+
+firstName, title, email, organization_website_url, city, industry, linkedin_url.
+
+Preserve all original columns.
+
+Pipeline
+
+Normalize company name – derive shortName from domain (strip "inc/llc/insurance/agency/etc.").
+
+Research (Perplexity API / sonar-pro) – retrieve 3-6 real hooks (news, awards, partnerships, community updates) from the last 6-12 months.
+
+Generation (GPT-5-MINI) – create { subject, emailBody } using rules:
+
+Subject = FirstName + Hook + Industry.
+
+Email:
+
+Hook-based opener.
+
+Body: "Our database reactivation system takes inactive leads, runs them through our platform, and sends a light SMS/email follow-up that gets more people booking calls. With how [ShortName] already operates, this helps keep momentum going."
+
+Instead of sending a Loom – include: "If it's helpful, I can send a quick 3-minute Loom walking through it - would you be open to that?"
+
+Close: "Check it out when you get a chance and let me know if it's worth a quick call. If not, no worries."
+
+Sign: - Stuart.
+
+Output
+
+New CSV with all original columns plus:
+
+subject
+
+emailBody
+
+Strictly plain text (no stray quotes or JSON artifacts).
+
+Performance / Scaling
+
+Batching required:
+
+Input must be split into configurable batch sizes (e.g., 50-100 rows per worker).
+
+Concurrency required:
+
+Multiple workers must process batches in parallel.
+
+Workers must be able to share state via Redis / Celery / multiprocessing.
+
+No fallback:
+
+If any batch or row fails (API timeout, malformed output), the process must stop and return a failure.
+
+Retry logic is acceptable, but only to re-run the whole failed batch, not to skip.
+
+Tech Stack
+
+Language: Python 3.10+
+
+Libraries:
+
+pandas – CSV I/O
+
+requests – Perplexity API calls
+
+openai SDK – GPT-5-MINI
+
+python-dotenv – env var mgmt
+
+celery + redis (or ray/multiprocessing) – distributed workers / batching
+
+APIs:
+
+Perplexity (for hooks)
+
+OpenAI GPT-5-MINI (for email/subject gen)
+
+CLI Usage

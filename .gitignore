@@ -7,8 +7,6 @@ __pycache__/
 .env
 .env.local
 
-# Outputs
-output/
 
 # OS
 .DS_Store
