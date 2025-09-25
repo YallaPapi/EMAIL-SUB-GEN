@@ -1,5 +1,6 @@
 from typing import Dict, List
 from openai import OpenAI
+from .metrics import COUNTERS
 
 # Module-level OpenAI client reused across threads
 _OPENAI_CLIENT: OpenAI | None = None
@@ -46,6 +47,21 @@ def generate_email(
         text={"format": {"type": "text"}, "verbosity": "low"},
         reasoning={"effort": "low"},
     )
+
+    # Track token usage if available
+    try:
+        usage = getattr(resp, "usage", None)
+        if usage is None and hasattr(resp, "to_dict"):
+            d = resp.to_dict()  # type: ignore
+            usage = d.get("usage")
+        if isinstance(usage, dict):
+            # Responses API typically: input_tokens / output_tokens
+            COUNTERS.add_openai(
+                int(usage.get("input_tokens", 0) or 0),
+                int(usage.get("output_tokens", 0) or 0),
+            )
+    except Exception:
+        pass
 
     content = getattr(resp, "output_text", None) or ""
     if not content:

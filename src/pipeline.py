@@ -7,6 +7,7 @@ from .config import AppConfig
 from .io_utils import read_csv, write_csv, normalize_columns, sanitize_text
 from .research import fetch_hooks
 from .generator import generate_email
+from .metrics import COUNTERS
 
 
 def _process_batch(
@@ -16,12 +17,16 @@ def _process_batch(
 ) -> List[Tuple[int, Dict[str, str]]]:
     results: List[Tuple[int, Dict[str, str]]] = []
     for idx, prospect in batch:
-        hooks = fetch_hooks(
-            perplexity_api_key=cfg.perplexity_api_key,
-            model=cfg.perplexity_model,
-            prospect=prospect,
-            timeout=cfg.request_timeout,
-        )
+        try:
+            hooks = fetch_hooks(
+                perplexity_api_key=cfg.perplexity_api_key,
+                model=cfg.perplexity_model,
+                prospect=prospect,
+                timeout=cfg.request_timeout,
+            )
+        except Exception:
+            # If research fails (e.g., rate limit), proceed with empty hooks
+            hooks = []
         gen = generate_email(
             openai_api_key=cfg.openai_api_key,
             model=cfg.openai_model,
@@ -65,12 +70,16 @@ def run_pipeline(
     # Threaded row-level parallelism
     def run_row(item: Tuple[int, Dict[str, str]]) -> Tuple[int, Dict[str, str]]:
         idx, prospect = item
-        hooks = fetch_hooks(
-            perplexity_api_key=cfg.perplexity_api_key,
-            model=cfg.perplexity_model,
-            prospect=prospect,
-            timeout=cfg.request_timeout,
-        )
+        try:
+            hooks = fetch_hooks(
+                perplexity_api_key=cfg.perplexity_api_key,
+                model=cfg.perplexity_model,
+                prospect=prospect,
+                timeout=cfg.request_timeout,
+            )
+        except Exception:
+            hooks = []
+        hooks_valid = 2 <= len(hooks) <= 8
         gen = generate_email(
             openai_api_key=cfg.openai_api_key,
             model=cfg.openai_model,
@@ -83,6 +92,7 @@ def run_pipeline(
         gen["emailBody"] = sanitize_text(gen["emailBody"]) 
         if not gen["subject"] or not gen["emailBody"]:
             raise RuntimeError("Empty subject or email body")
+        gen["hookTestFailed"] = "true" if not hooks_valid else "false"
         return idx, gen
 
     with concurrent.futures.ThreadPoolExecutor(max_workers=cfg.concurrency) as pool:
@@ -100,7 +110,14 @@ def run_pipeline(
     for idx, gen in all_results:
         df.loc[idx, "subject"] = gen["subject"]
         df.loc[idx, "emailBody"] = gen["emailBody"]
+        df.loc[idx, "hookTestFailed"] = gen.get("hookTestFailed", "false")
 
     write_csv(df, output_path)
     duration = time.time() - start
-    print(f"Processed {len(rows)} rows in {duration:.1f}s. Output: {output_path}")
+    # Metrics snapshot
+    m = COUNTERS.snapshot()
+    print(
+        f"Processed {len(rows)} rows in {duration:.1f}s. Output: {output_path}\n"
+        f"OpenAI tokens - input: {m['openai_input']}, output: {m['openai_output']}\n"
+        f"Perplexity tokens - input: {m['perplexity_input']}, output: {m['perplexity_output']}"
+    )

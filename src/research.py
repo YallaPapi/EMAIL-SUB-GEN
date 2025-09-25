@@ -3,6 +3,7 @@ from typing import List, Dict
 import requests
 from requests.adapters import HTTPAdapter
 from urllib3.util.retry import Retry
+from .metrics import COUNTERS
 
 # Module-level pooled session for connection reuse
 _SESSION = requests.Session()
@@ -44,6 +45,15 @@ def fetch_hooks(perplexity_api_key: str, model: str, prospect: Dict[str, str], t
     if resp.status_code != 200:
         raise RuntimeError(f"Perplexity API error {resp.status_code}: {resp.text[:200]}")
     data = resp.json()
+    # Track token usage if provided by Perplexity
+    try:
+        usage = data.get("usage") or {}
+        COUNTERS.add_perplexity(
+            int(usage.get("prompt_tokens", 0) or 0),
+            int(usage.get("completion_tokens", 0) or 0),
+        )
+    except Exception:
+        pass
     try:
         content = data["choices"][0]["message"]["content"]
     except Exception as e:
@@ -61,6 +71,5 @@ def fetch_hooks(perplexity_api_key: str, model: str, prospect: Dict[str, str], t
 
     hooks = obj.get("hooks") or []
     hooks = [h for h in hooks if isinstance(h, str) and h.strip()]
-    if not (3 <= len(hooks) <= 6):
-        raise RuntimeError("Perplexity returned invalid hooks count")
+    # Do not raise on count; allow pipeline to decide validity (target 2–8)
     return hooks
