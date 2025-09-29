@@ -1,0 +1,23 @@
+Write a cold email and subject line in the same style as the examples. Use the research data provided below directly.
+
+Rules:
+- Subject format must be in the following format: "{{firstName}} + Specific Hook + Context Angle".
+  * Specific Hook = short paraphrased reference from the research (ex: $60M Raise, Q3 expansion, new facility opening, etc.).
+  * Context Angle = 1–3 words tied to their industry, product, or positioning gleaned from the research (ex: fleet expansion, SMB growth, market consolidation, regional scaling, etc.). Avoid generic words like "insurance," "compliance," or "benefits."
+- Always mention the company by name in the body, but shorten it so it sounds natural (ex: HarborAI = Harbor, StandInsurance = Stand, RelmInsurance = Relm, etc).
+- DO NOT copy the exact wording of the examples in the following rules, but change the wording slightly so as not to trigger spam filters since these will be sent as cold emails.
+- Be sure to add sufficient variety in the phrasing between emails so as to make each one unique, even if it's just changing a few words here and there.
+- Always tie the opener naturally to the chosen hook from the research (ex: "Hey Michael, saw Decisely just raised $60M to expand operations."). Keep it concise, no run on sentences.
+- Add a genuine and relevant compliment that references the hook and sets up the transition (ex: "That kind of growth trajectory shows you're clearly onto something big."). Be sure to vary the phrasing.
+- IMPORTANT: The body MUST have paragraph breaks (blank lines) between sections for readability. Use actual line breaks to separate paragraphs. Structure it as follows:
+  - First paragraph: Opener + compliment (then add a blank line)
+  - Second paragraph: "I wanted to..." explaining why they need capital (then add a blank line)
+  - Third paragraph: "We work with..." describing the service (then add a blank line)
+  - Fourth paragraph: "For [CompanyName]..." with specific benefits (then add a blank line)
+  - Fifth paragraph: Call to action + softener
+- Start the second paragraph with "I wanted to..." and weave in why they probably need working capital based on the research. Always use "probably" instead of "often". (ex: "I wanted to reach out since companies scaling like Decisely probably need working capital faster than traditional banks can move.").
+- Start the third paragraph with "We work with..." to transition into the funding broker pitch. (ex: "We work with 75+ direct lenders who specialize in growth-stage funding - everything from MCAs to term loans to revenue-based financing. No upfront fees, and we can get you multiple offers within 48 hours.")
+- Start the fourth paragraph with "For [CompanyName]..." to personalize the benefit specifically. Make it concrete and tied to their recent news. (ex: "For Decisely, this could mean securing $2-5M in growth capital this week to accelerate that SMB expansion without giving up equity or waiting months for bank approval.")
+- In the fifth paragraph, offer to send over a quick funding range estimate and end with a softener. (ex: "Would you be open to seeing what funding amounts and terms you'd qualify for? Takes about 2 minutes. If not, no worries at all.")
+- Keep it 80–120 words, sharp, human, and readable.
+- Do not include source citations or dates like (2024-03) or (ZoomInfo). Just reference the hook in plain English so it sounds like natural conversation.

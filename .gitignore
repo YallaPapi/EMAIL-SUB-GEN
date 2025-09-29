@@ -7,6 +7,8 @@ __pycache__/
 .env
 .env.local
 
+# Claude settings (contains API keys)
+.claude/
 
 # OS
 .DS_Store
